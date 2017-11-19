@@ -12,10 +12,16 @@ trait LambdaExpression extends Evaluation {
     println("Evaluating: " + expr.toString)
     expr match {
       /* E-App1   */ case LambdaApplication(t1, t2) if progressPossible(t1) && !isValue(t1) => LambdaApplication(-->(t1), t2)
-      /* E-App2   */ case LambdaApplication(v1, t2) if isValue(v1) && progressPossible(t2) => LambdaApplication(v1, -->(t2))
-      /* E-AppAbs */ case LambdaApplication(LambdaAbstraction(x,t12), v2) if isValue(v2) => substitute(matcher(x,v2), t12)
-      case λ : LambdaAbstraction => λ
-      case _ => null
+    /* E-App2   */ case LambdaApplication(v1, t2) if isValue(v1) && progressPossible(t2) => LambdaApplication(v1, -->(t2))
+    /* E-AppAbs */ case LambdaApplication(LambdaAbstraction(x,t12), v2) if isValue(v2) => substitute(matcher(x,v2), t12)
+    case λ : LambdaAbstraction => λ
+    /*E-PairBeta1*/ case PairProjectionFirst(LambdaPair(first, second)) if isValue(first) && isValue(second) => first
+    /*E-PairBeta2*/ case PairProjectionSecond(LambdaPair(first, second)) if isValue(first) && isValue(second) => second
+    /*E-Proj1*/ case PairProjectionFirst(t) if progressPossible(t) && !isValue(t) => PairProjectionFirst(-->(t))
+    /*E-Proj2*/ case PairProjectionSecond(t) if progressPossible(t) && !isValue(t) => PairProjectionSecond(-->(t))
+    /*E-Pair1*/ case LambdaPair(t1,t2) if !isValue(t1) && !isValue(t2) && progressPossible(t1) => LambdaPair( -->(t1), t2)
+    /*E-Pair2*/ case LambdaPair(v1,t2) if isValue(v1) && !isValue(t2) && progressPossible(t2) => LambdaPair( v1, -->(t2))
+    case _ => null
     }
   }
 

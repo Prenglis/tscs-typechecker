@@ -12,18 +12,38 @@ class LambdaCalculusSyntax (val input : ParserInput) extends Parser {
   }
 
   def Term: Rule1[LambdaExpression] = rule {
-    LambdaVariableTerm | LambdaAbstractionTerm | LambdaApplicationTerm
+    LambdaVariableTerm |
+      LambdaAbstractionTerm |
+      LambdaApplicationTerm |
+      LambdaPairTerm |
+      LambdaPairProjection
+  }
+  def LambdaPairTerm : Rule1[LambdaPair] = rule {
+    "{" ~ Term ~ "," ~ Term ~ "}" ~> LambdaPair
+
+
   }
 
-  def LambdaVariableTerm : Rule1[LambdaVariable] = rule {
-    capture(oneOrMore(CharPredicate.Alpha)) ~> UntypedLambdaVariable
+  def LambdaPairProjection : Rule1[LambdaProjection] = rule {
+    LambdaPairProjectionFirst | LambdaPairProjectionSecond
   }
 
-  def LambdaAbstractionTerm : Rule1[LambdaAbstraction] = rule {
-    'λ' ~ LambdaVariableTerm ~ "." ~ Term ~> LambdaAbstraction
+  def LambdaPairProjectionFirst : Rule1[LambdaProjection] = rule {
+    Term ~ ".1" ~> PairProjectionFirst
   }
+  def LambdaPairProjectionSecond : Rule1[LambdaProjection] = rule {
+    Term ~ ".2" ~> PairProjectionSecond
+  }
+    def LambdaVariableTerm : Rule1[LambdaVariable] = rule {
+      capture(oneOrMore(CharPredicate.Alpha)) ~> UntypedLambdaVariable
 
-  def LambdaApplicationTerm : Rule1[LambdaApplication] = rule {
-    "(" ~ Term ~ " " ~ Term ~ ")" ~> LambdaApplication
+    }
+
+    def LambdaAbstractionTerm : Rule1[LambdaAbstraction] = rule {
+      'λ' ~ LambdaVariableTerm ~ "." ~ Term ~> LambdaAbstraction
+    }
+
+    def LambdaApplicationTerm : Rule1[LambdaApplication] = rule {
+      "(" ~ Term ~ " " ~ Term ~ ")" ~> LambdaApplication
+    }
   }
-}

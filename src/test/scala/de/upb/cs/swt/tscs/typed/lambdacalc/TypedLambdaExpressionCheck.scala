@@ -41,5 +41,15 @@ class TypedLambdaExpressionCheck extends FlatSpec with Matchers {
     parserResult shouldBe a [Success[_]]
     parserResult.get.typecheck() shouldBe a [Success[_]]
   }
+  "{λx : [A->A].y,λx : [A->A].c}:[[A->A]X[A->A]] " should "successfully typecheck" in {
+    var parserResult = new TypedLambdaCalculusSyntax("{λx : [A->A].y,λx : [A->A].c}:[[A->A]X[A->A]]").Term.run()
+    parserResult shouldBe a [Success[_]]
+    parserResult.get.typecheck() shouldBe a [Success[_]]
+  }
+  "{v,c}.1:A " should "successfully typecheck" in {
+    var parserResult = new TypedLambdaCalculusSyntax("{v,c}.1:A").Term.run()
+    parserResult shouldBe a [Success[_]]
+    parserResult.get.typecheck() shouldBe a [Success[_]]
+  }
 
 }

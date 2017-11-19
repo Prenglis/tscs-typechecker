@@ -12,6 +12,10 @@ case class FunctionTypeInformation(sourceType : TypeInformation, targetType : Ty
   extends TypeInformation(sourceType.toString + " -> " + targetType.toString) {
   override def toString: String = "["+ sourceType + "->"+ targetType  + "]"
 }
+case class ProductTypeInformation(firstType : TypeInformation, secondType : TypeInformation)
+  extends TypeInformation(firstType.toString + "X" + secondType.toString){
+  override def toString: String = "["+ firstType + "X"+ secondType + "]"
+}
 
 object TypeInformations {
   def Nat = new BaseTypeInformation("Nat")

@@ -1,6 +1,6 @@
 package de.upb.cs.swt.tscs.typed.lambdacalc
 
-import de.upb.cs.swt.tscs.lambdacalc.{LambdaAbstraction, LambdaApplication, LambdaExpression, UntypedLambdaVariable}
+import de.upb.cs.swt.tscs.lambdacalc.{LambdaAbstraction, LambdaApplication, LambdaExpression, UntypedLambdaVariable, LambdaProjection, LambdaPair, PairProjectionFirst, PairProjectionSecond}
 import de.upb.cs.swt.tscs.typed._
 import de.upb.cs.swt.tscs.{Evaluation, Expression}
 
@@ -39,10 +39,25 @@ trait TypedLambdaExpression extends LambdaExpression with Typecheck {
       /* T-App */
       case app : LambdaApplication
         if typecheck(app.function).isSuccess &&
-           typecheck(app.function).get.isInstanceOf[FunctionTypeInformation] &&
-           typecheck(app.argument).isSuccess &&
-           typecheck(app.argument).get == typecheck(app.function).get.asInstanceOf[FunctionTypeInformation].sourceType
+          typecheck(app.function).get.isInstanceOf[FunctionTypeInformation] &&
+          typecheck(app.argument).isSuccess &&
+          typecheck(app.argument).get == typecheck(app.function).get.asInstanceOf[FunctionTypeInformation].sourceType
       => storeAndWrap(app, typecheck(app.function).get.asInstanceOf[FunctionTypeInformation].targetType)
+      /*T-Pair **/
+      case pair: LambdaPair
+        if typecheck(pair.first).isSuccess &&
+          typecheck(pair.second).isSuccess
+      => storeAndWrap(pair, new ProductTypeInformation(typecheck(pair.first).get, typecheck(pair.second).get))
+      /*T-Proj1*/
+      case proj: PairProjectionFirst
+        if typecheck(proj.pexpr).isSuccess &&
+          typecheck(proj.pexpr).get.isInstanceOf[ProductTypeInformation]
+      => storeAndWrap(proj.pexpr.asInstanceOf[LambdaPair].first, typecheck(proj.pexpr).get.asInstanceOf[ProductTypeInformation].firstType)
+      /*T-Proj2*/
+      case proj: PairProjectionSecond
+        if typecheck(proj.pexpr).isSuccess &&
+          typecheck(proj.pexpr).get.isInstanceOf[ProductTypeInformation]
+      => storeAndWrap(proj.pexpr.asInstanceOf[LambdaPair].second, typecheck(proj.pexpr).get.asInstanceOf[ProductTypeInformation].secondType)
       case _
       => Failure[TypeInformation](new TypingException(expr))
     }
